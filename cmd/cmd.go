@@ -71,7 +71,6 @@ var (
 			Name:   "client_pool_size",
 			EnvVar: "MICRO_CLIENT_POOL_SIZE",
 			Usage:  "Sets the client connection pool size. Default: 1",
-			Value:  1,
 		},
 		cli.StringFlag{
 			Name:   "client_pool_ttl",
