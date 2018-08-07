@@ -159,7 +159,15 @@ func (r *rpcClient) stream(ctx context.Context, address string, req Request, opt
 		return nil, errors.InternalServerError("go.micro.client", err.Error())
 	}
 
-	c, err := r.opts.Transport.Dial(address, transport.WithStream(), transport.WithTimeout(opts.DialTimeout))
+	dOpts := []transport.DialOption{
+		transport.WithStream(),
+	}
+
+	if opts.DialTimeout >= 0 {
+		dOpts = append(dOpts, transport.WithTimeout(opts.DialTimeout))
+	}
+
+	c, err := r.opts.Transport.Dial(address, dOpts...)
 	if err != nil {
 		return nil, errors.InternalServerError("go.micro.client", "connection error: %v", err)
 	}
@@ -230,9 +238,9 @@ func (r *rpcClient) next(request Request, opts CallOptions) (selector.Next, erro
 	// get next nodes from the selector
 	next, err := r.opts.Selector.Select(request.Service(), opts.SelectOptions...)
 	if err != nil && err == selector.ErrNotFound {
-		return nil, errors.NotFound("go.micro.client", err.Error())
+		return nil, errors.NotFound("go.micro.client", "service %s: %v", request.Service(), err.Error())
 	} else if err != nil {
-		return nil, errors.InternalServerError("go.micro.client", err.Error())
+		return nil, errors.InternalServerError("go.micro.client", "error selecting %s node: %v", request.Service(), err.Error())
 	}
 
 	return next, nil
@@ -282,7 +290,7 @@ func (r *rpcClient) Call(ctx context.Context, request Request, response interfac
 		// call backoff first. Someone may want an initial start delay
 		t, err := callOpts.Backoff(ctx, request, i)
 		if err != nil {
-			return errors.InternalServerError("go.micro.client", err.Error())
+			return errors.InternalServerError("go.micro.client", "backoff error: %v", err.Error())
 		}
 
 		// only sleep if greater than 0
@@ -293,9 +301,9 @@ func (r *rpcClient) Call(ctx context.Context, request Request, response interfac
 		// select next node
 		node, err := next()
 		if err != nil && err == selector.ErrNotFound {
-			return errors.NotFound("go.micro.client", err.Error())
+			return errors.NotFound("go.micro.client", "service %s: %v", request.Service(), err.Error())
 		} else if err != nil {
-			return errors.InternalServerError("go.micro.client", err.Error())
+			return errors.InternalServerError("go.micro.client", "error getting next %s node: %v", request.Service(), err.Error())
 		}
 
 		// set the address
@@ -355,18 +363,6 @@ func (r *rpcClient) Stream(ctx context.Context, request Request, opts ...CallOpt
 		return nil, err
 	}
 
-	// check if we already have a deadline
-	d, ok := ctx.Deadline()
-	if !ok {
-		// no deadline so we create a new one
-		ctx, _ = context.WithTimeout(ctx, callOpts.RequestTimeout)
-	} else {
-		// got a deadline so no need to setup context
-		// but we need to set the timeout we pass along
-		opt := WithRequestTimeout(d.Sub(time.Now()))
-		opt(&callOpts)
-	}
-
 	// should we noop right here?
 	select {
 	case <-ctx.Done():
@@ -378,7 +374,7 @@ func (r *rpcClient) Stream(ctx context.Context, request Request, opts ...CallOpt
 		// call backoff first. Someone may want an initial start delay
 		t, err := callOpts.Backoff(ctx, request, i)
 		if err != nil {
-			return nil, errors.InternalServerError("go.micro.client", err.Error())
+			return nil, errors.InternalServerError("go.micro.client", "backoff error: %v", err.Error())
 		}
 
 		// only sleep if greater than 0
@@ -388,9 +384,9 @@ func (r *rpcClient) Stream(ctx context.Context, request Request, opts ...CallOpt
 
 		node, err := next()
 		if err != nil && err == selector.ErrNotFound {
-			return nil, errors.NotFound("go.micro.client", err.Error())
+			return nil, errors.NotFound("go.micro.client", "service %s: %v", request.Service(), err.Error())
 		} else if err != nil {
-			return nil, errors.InternalServerError("go.micro.client", err.Error())
+			return nil, errors.InternalServerError("go.micro.client", "error getting next %s node: %v", request.Service(), err.Error())
 		}
 
 		address := node.Address
