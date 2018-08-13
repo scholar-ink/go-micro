@@ -6,6 +6,7 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/server"
+	"github.com/micro/go-micro/broker"
 )
 
 type serviceKey struct{}
@@ -80,6 +81,6 @@ func RegisterHandler(s server.Server, h interface{}, opts ...server.HandlerOptio
 }
 
 // RegisterSubscriber is syntactic sugar for registering a subscriber
-func RegisterSubscriber(topic string, s server.Server, h interface{}, opts ...server.SubscriberOption) error {
+func RegisterSubscriber(topic string, s server.Server, h interface{}, opts ...broker.SubscribeOptions) error {
 	return s.Subscribe(s.NewSubscriber(topic, h, opts...))
 }
