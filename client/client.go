@@ -4,6 +4,7 @@ package client
 import (
 	"context"
 	"time"
+	"github.com/micro/go-micro/broker"
 )
 
 // Client is the interface used to make requests to services.
@@ -16,7 +17,7 @@ type Client interface {
 	NewRequest(service, method string, req interface{}, reqOpts ...RequestOption) Request
 	Call(ctx context.Context, req Request, rsp interface{}, opts ...CallOption) error
 	Stream(ctx context.Context, req Request, opts ...CallOption) (Stream, error)
-	Publish(ctx context.Context, msg Message, opts ...PublishOption) error
+	Publish(ctx context.Context, msg Message, opts ...broker.PublishOption) error
 	String() string
 }
 
@@ -86,7 +87,7 @@ func Call(ctx context.Context, request Request, response interface{}, opts ...Ca
 
 // Publishes a publication using the default client. Using the underlying broker
 // set within the options.
-func Publish(ctx context.Context, msg Message, opts ...PublishOption) error {
+func Publish(ctx context.Context, msg Message, opts ...broker.PublishOption) error {
 	return DefaultClient.Publish(ctx, msg, opts...)
 }
 

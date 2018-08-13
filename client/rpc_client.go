@@ -438,7 +438,7 @@ func (r *rpcClient) Stream(ctx context.Context, request Request, opts ...CallOpt
 	return nil, grr
 }
 
-func (r *rpcClient) Publish(ctx context.Context, msg Message, opts ...PublishOption) error {
+func (r *rpcClient) Publish(ctx context.Context, msg Message, opts ...broker.PublishOption) error {
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
 		md = make(map[string]string)
@@ -461,7 +461,7 @@ func (r *rpcClient) Publish(ctx context.Context, msg Message, opts ...PublishOpt
 	return r.opts.Broker.Publish(msg.Topic(), &broker.Message{
 		Header: md,
 		Body:   b.Bytes(),
-	})
+	},opts...)
 }
 
 func (r *rpcClient) NewMessage(topic string, message interface{}, opts ...MessageOption) Message {
