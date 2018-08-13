@@ -165,7 +165,7 @@ func (s *rpcServer) Handle(h Handler) error {
 	return nil
 }
 
-func (s *rpcServer) NewSubscriber(topic string, sb interface{}, opts ...SubscriberOption) Subscriber {
+func (s *rpcServer) NewSubscriber(topic string, sb interface{}, opts ...broker.SubscribeOption) Subscriber {
 	return newSubscriber(topic, sb, opts...)
 }
 
@@ -247,9 +247,9 @@ func (s *rpcServer) Register() error {
 	var subscriberList []*subscriber
 	for e := range s.subscribers {
 		// Only advertise non internal subscribers
-		if !e.Options().Internal {
+		//if !e.Options().Internal {
 			subscriberList = append(subscriberList, e)
-		}
+		//}
 	}
 	sort.Slice(subscriberList, func(i, j int) bool {
 		return subscriberList[i].topic > subscriberList[j].topic

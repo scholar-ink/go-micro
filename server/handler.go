@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-micro/broker"
 )
 
 // Handler interface represents a Service request handler. It's generated
@@ -29,7 +30,7 @@ type Subscriber interface {
 	Topic() string
 	Subscriber() interface{}
 	Endpoints() []*registry.Endpoint
-	Options() SubscriberOptions
+	Options() broker.SubscribeOptions
 }
 
 type HandlerOptions struct {
