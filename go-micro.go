@@ -81,6 +81,6 @@ func RegisterHandler(s server.Server, h interface{}, opts ...server.HandlerOptio
 }
 
 // RegisterSubscriber is syntactic sugar for registering a subscriber
-func RegisterSubscriber(topic string, s server.Server, h interface{}, opts ...broker.SubscribeOptions) error {
+func RegisterSubscriber(topic string, s server.Server, h interface{}, opts ...broker.SubscribeOption) error {
 	return s.Subscribe(s.NewSubscriber(topic, h, opts...))
 }
