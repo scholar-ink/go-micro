@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/go-log"
+	"github.com/micro/go-micro/broker"
 )
 
 type Server interface {
@@ -16,7 +17,7 @@ type Server interface {
 	Init(...Option) error
 	Handle(Handler) error
 	NewHandler(interface{}, ...HandlerOption) Handler
-	NewSubscriber(string, interface{}, ...SubscriberOption) Subscriber
+	NewSubscriber(string, interface{}, ...broker.SubscribeOption) Subscriber
 	Subscribe(Subscriber) error
 	Register() error
 	Deregister() error
@@ -87,7 +88,7 @@ func NewServer(opt ...Option) Server {
 
 // NewSubscriber creates a new subscriber interface with the given topic
 // and handler using the default server
-func NewSubscriber(topic string, h interface{}, opts ...SubscriberOption) Subscriber {
+func NewSubscriber(topic string, h interface{}, opts ...broker.SubscribeOption) Subscriber {
 	return DefaultServer.NewSubscriber(topic, h, opts...)
 }
 
