@@ -7,9 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/google/uuid"
 	"github.com/micro/go-log"
-	"github.com/pborman/uuid"
-	"github.com/micro/go-micro/broker"
 )
 
 type Server interface {
@@ -17,7 +16,7 @@ type Server interface {
 	Init(...Option) error
 	Handle(Handler) error
 	NewHandler(interface{}, ...HandlerOption) Handler
-	NewSubscriber(string, interface{}, ...broker.SubscribeOption) Subscriber
+	NewSubscriber(string, interface{}, ...SubscriberOption) Subscriber
 	Subscribe(Subscriber) error
 	Register() error
 	Deregister() error
@@ -64,7 +63,7 @@ var (
 	DefaultAddress        = ":0"
 	DefaultName           = "go-server"
 	DefaultVersion        = "1.0.0"
-	DefaultId             = uuid.NewUUID().String()
+	DefaultId             = uuid.New().String()
 	DefaultServer  Server = newRpcServer()
 )
 
@@ -88,7 +87,7 @@ func NewServer(opt ...Option) Server {
 
 // NewSubscriber creates a new subscriber interface with the given topic
 // and handler using the default server
-func NewSubscriber(topic string, h interface{}, opts ...broker.SubscribeOption) Subscriber {
+func NewSubscriber(topic string, h interface{}, opts ...SubscriberOption) Subscriber {
 	return DefaultServer.NewSubscriber(topic, h, opts...)
 }
 
